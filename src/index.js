@@ -11,7 +11,7 @@ const unsplashAPI = new UnsplashAPI();
 searchFormEl.addEventListener('submit', submitImages);
 btnLoadMore.addEventListener('click', handleLoadModeBtnClick);
 
-function submitImages(e) {
+async function submitImages(e) {
   e.preventDefault();
 
   let searchText = e.currentTarget.searchQuery.value.trim();
@@ -29,45 +29,44 @@ function submitImages(e) {
 
   unsplashAPI.query = searchText;
 
-  unsplashAPI
-    .fetchPhotos()
-    .then(({ data }) => {
-      console.log(data);
-      if (!data.total) {
-        onError();
-        return;
-      }
+  try {
+    const { data } = await unsplashAPI.fetchPhotos();
 
-      manyMatches(data.totalHits);
-      gallaryListEl.innerHTML = renderElements(data.hits);
+    if (!data.total) {
+      onError();
+      return;
+    }
 
-      if (data.totalHits > unsplashAPI.count) {
-        btnLoadMore.classList.remove('is-hidden');
-        return;
-      }
-      btnLoadMore.classList.add('is-hidden');
-    })
-    .catch(err => {
-      console.log(err);
-    });
+    manyMatches(data.totalHits);
+    gallaryListEl.innerHTML = renderElements(data.hits);
+
+    if (data.totalHits > unsplashAPI.count) {
+      btnLoadMore.classList.remove('is-hidden');
+      return;
+    }
+
+    btnLoadMore.classList.add('is-hidden');
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-function handleLoadModeBtnClick() {
+async function handleLoadModeBtnClick() {
   unsplashAPI.page += 1;
   btnLoadMore.disabled = true;
 
-  unsplashAPI
-    .fetchPhotos()
-    .then(({ data }) => {
-      if (unsplashAPI.count * unsplashAPI.page >= data.totalHits) {
-        btnLoadMore.classList.add('is-hidden');
-      }
-      gallaryListEl.insertAdjacentHTML('beforeend', renderElements(data.hits));
-      btnLoadMore.disabled = false;
-    })
-    .catch(err => {
-      console.log(err);
-    });
+  try {
+    const { data } = await unsplashAPI.fetchPhotos();
+
+    if (unsplashAPI.count * unsplashAPI.page >= data.totalHits) {
+      btnLoadMore.classList.add('is-hidden');
+    }
+
+    gallaryListEl.insertAdjacentHTML('beforeend', renderElements(data.hits));
+    btnLoadMore.disabled = false;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 function onError() {

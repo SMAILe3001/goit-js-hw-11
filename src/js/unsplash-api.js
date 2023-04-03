@@ -16,13 +16,17 @@ export class UnsplashAPI {
     safesearch: true,
   };
 
-  fetchPhotos() {
-    return axios.get(`${this.#BASE_URL}/api/`, {
-      params: {
-        page: this.page,
-        q: this.query,
-        ...this.baseSearchParams,
-      },
-    });
+  async fetchPhotos() {
+    try {
+      return await axios.get(`${this.#BASE_URL}/api/`, {
+        params: {
+          page: this.page,
+          q: this.query,
+          ...this.baseSearchParams,
+        },
+      });
+    } catch (err) {
+      throw new Error(err.message);
+    }
   }
 }
