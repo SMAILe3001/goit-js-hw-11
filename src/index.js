@@ -1,12 +1,19 @@
 import renderElements from './templates/imagesRender.hbs';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { UnsplashAPI } from './js/unsplash-api';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const searchFormEl = document.querySelector('#search-form');
 const gallaryListEl = document.querySelector('.gallery');
 const btnLoadMore = document.querySelector('.load-more');
 
 const unsplashAPI = new UnsplashAPI();
+
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionDelay: 250,
+  scrollZoom: false,
+});
 
 searchFormEl.addEventListener('submit', submitImages);
 btnLoadMore.addEventListener('click', handleLoadModeBtnClick);
@@ -39,6 +46,7 @@ async function submitImages(e) {
 
     manyMatches(data.totalHits);
     gallaryListEl.innerHTML = renderElements(data.hits);
+    lightbox.refresh();
 
     if (data.totalHits > unsplashAPI.count) {
       btnLoadMore.classList.remove('is-hidden');
@@ -63,6 +71,7 @@ async function handleLoadModeBtnClick() {
     }
 
     gallaryListEl.insertAdjacentHTML('beforeend', renderElements(data.hits));
+    lightbox.refresh();
     btnLoadMore.disabled = false;
   } catch (err) {
     console.log(err);
