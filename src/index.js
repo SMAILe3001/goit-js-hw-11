@@ -1,50 +1,73 @@
 import renderElements from './templates/imagesRender.hbs';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { UnsplashAPI } from './js/unsplash-api';
 
-const formEl = document.querySelector('#search-form');
-const galerryEl = document.querySelector('.gallery');
+const searchFormEl = document.querySelector('#search-form');
+const gallaryListEl = document.querySelector('.gallery');
+const btnLoadMore = document.querySelector('.load-more');
 
-const KEY_API = '35020167-a3dbb9d484c10f798b185affc';
-const BASE_URL = 'https://pixabay.com/api/';
-const PARAMETER_API = {
-  image_type: 'photo',
-  orientation: 'horizontal',
-  safesearch: true,
-  page: 1,
-  per_page: 40,
-};
+const unsplashAPI = new UnsplashAPI();
 
-formEl.addEventListener('submit', submitImages);
+searchFormEl.addEventListener('submit', submitImages);
+btnLoadMore.addEventListener('click', handleLoadModeBtnClick);
 
 function submitImages(e) {
   e.preventDefault();
 
-  let serchText = e.currentTarget.searchQuery.value;
-  if (!serchText) {
+  let searchText = e.currentTarget.searchQuery.value.trim();
+
+  if (unsplashAPI.page > 1) {
+    unsplashAPI.page = 1;
+  }
+
+  if (!searchText) {
+    nonSearch();
     return;
   }
 
-  searchImages(serchText).then(data => {
-    console.log(data);
-    if (!data.total) {
-      onError();
-      return;
-    }
-    manyMatches(data.totalHits);
-    galerryEl.innerHTML = renderElements(data.hits);
-  });
+  e.currentTarget.searchQuery.value = '';
+
+  unsplashAPI.query = searchText;
+
+  unsplashAPI
+    .fetchPhotos()
+    .then(data => {
+      if (!data.total) {
+        onError();
+        return;
+      }
+
+      manyMatches(data.totalHits);
+      gallaryListEl.innerHTML = renderElements(data.hits);
+
+      if (data.totalHits > unsplashAPI.count) {
+        btnLoadMore.classList.remove('is-hidden');
+        return;
+      }
+      btnLoadMore.classList.add('is-hidden');
+    })
+    .catch(err => {
+      console.log(err);
+    });
 }
 
-function searchImages(e) {
-  return fetch(
-    `${BASE_URL}?key=${KEY_API}&q=${e}&image_type=photo&pretty=true`
-  ).then(response => {
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
+function handleLoadModeBtnClick() {
+  unsplashAPI.page += 1;
+  btnLoadMore.disabled = true;
 
-    return response.json();
-  });
+  unsplashAPI
+    .fetchPhotos()
+    .then(data => {
+      console.log(unsplashAPI.count * unsplashAPI.page);
+      if (unsplashAPI.count * unsplashAPI.page >= data.totalHits) {
+        btnLoadMore.classList.add('is-hidden');
+      }
+      gallaryListEl.insertAdjacentHTML('beforeend', renderElements(data.hits));
+      btnLoadMore.disabled = false;
+    })
+    .catch(err => {
+      console.log(err);
+    });
 }
 
 function onError() {
@@ -56,3 +79,18 @@ function onError() {
 function manyMatches(e) {
   Notify.info(`Hooray! We found ${e} images.`);
 }
+
+function nonSearch() {
+  Notify.info(`Enter some data`);
+}
+
+// function scrollTopPage() {
+//   const { height: cardHeight } = document
+//     .querySelector('.gallery')
+//     .firstElementChild.getBoundingClientRect();
+
+//   window.scrollBy({
+//     top: cardHeight * 2,
+//     behavior: 'smooth',
+//   });
+// }

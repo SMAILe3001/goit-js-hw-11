@@ -1,6 +1,6 @@
 .gallery {
   background-color: chartreuse;
-  padding: 80px 15px 15px 15px;
+  padding: 80px 15px 50px 15px;
   display: flex;
   flex-wrap: wrap;
   gap: 30px;
@@ -27,4 +27,14 @@ img {
 .info {
   display: flex;
   text-align: center;
+}
+
+.load-more {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.load-more.is-hidden {
+  display: none;
 }
