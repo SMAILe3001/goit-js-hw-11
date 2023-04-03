@@ -31,7 +31,8 @@ function submitImages(e) {
 
   unsplashAPI
     .fetchPhotos()
-    .then(data => {
+    .then(({ data }) => {
+      console.log(data);
       if (!data.total) {
         onError();
         return;
@@ -57,8 +58,7 @@ function handleLoadModeBtnClick() {
 
   unsplashAPI
     .fetchPhotos()
-    .then(data => {
-      console.log(unsplashAPI.count * unsplashAPI.page);
+    .then(({ data }) => {
       if (unsplashAPI.count * unsplashAPI.page >= data.totalHits) {
         btnLoadMore.classList.add('is-hidden');
       }
@@ -83,14 +83,3 @@ function manyMatches(e) {
 function nonSearch() {
   Notify.info(`Enter some data`);
 }
-
-// function scrollTopPage() {
-//   const { height: cardHeight } = document
-//     .querySelector('.gallery')
-//     .firstElementChild.getBoundingClientRect();
-
-//   window.scrollBy({
-//     top: cardHeight * 2,
-//     behavior: 'smooth',
-//   });
-// }

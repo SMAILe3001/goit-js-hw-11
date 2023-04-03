@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export class UnsplashAPI {
   #BASE_URL = 'https://pixabay.com';
   #API_KEY = '35020167-a3dbb9d484c10f798b185affc';
@@ -15,18 +17,12 @@ export class UnsplashAPI {
   };
 
   fetchPhotos() {
-    const searchParams = new URLSearchParams({
-      page: this.page,
-      q: this.query,
-      ...this.baseSearchParams,
-    });
-
-    return fetch(`${this.#BASE_URL}/api/?${searchParams}`).then(res => {
-      if (!res.ok) {
-        throw new Error(res.statusText);
-      }
-
-      return res.json();
+    return axios.get(`${this.#BASE_URL}/api/`, {
+      params: {
+        page: this.page,
+        q: this.query,
+        ...this.baseSearchParams,
+      },
     });
   }
 }
