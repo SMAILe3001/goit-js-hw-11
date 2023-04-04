@@ -20,6 +20,7 @@ btnLoadMore.addEventListener('click', handleLoadModeBtnClick);
 
 async function submitImages(e) {
   e.preventDefault();
+  window.scrollTo(0, 0);
 
   let searchText = e.currentTarget.searchQuery.value.trim();
 
@@ -73,6 +74,7 @@ async function handleLoadModeBtnClick() {
     gallaryListEl.insertAdjacentHTML('beforeend', renderElements(data.hits));
     lightbox.refresh();
     btnLoadMore.disabled = false;
+    scrollWindow();
   } catch (err) {
     console.log(err);
   }
@@ -90,4 +92,15 @@ function manyMatches(e) {
 
 function nonSearch() {
   Notify.info(`Enter some data`);
+}
+
+function scrollWindow() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
 }
