@@ -21,12 +21,11 @@ btnLoadMore.addEventListener('click', handleLoadModeBtnClick);
 async function submitImages(e) {
   e.preventDefault();
   window.scrollTo(0, 0);
+  unsplashAPI.page = 1;
+  gallaryListEl.innerHTML = '';
+  btnLoadMore.classList.add('is-hidden');
 
   let searchText = e.currentTarget.searchQuery.value.trim();
-
-  if (unsplashAPI.page > 1) {
-    unsplashAPI.page = 1;
-  }
 
   if (!searchText) {
     nonSearch();
@@ -53,8 +52,6 @@ async function submitImages(e) {
       btnLoadMore.classList.remove('is-hidden');
       return;
     }
-
-    btnLoadMore.classList.add('is-hidden');
   } catch (err) {
     console.log(err);
   }
@@ -69,6 +66,7 @@ async function handleLoadModeBtnClick() {
 
     if (unsplashAPI.count * unsplashAPI.page >= data.totalHits) {
       btnLoadMore.classList.add('is-hidden');
+      endSearch();
     }
 
     gallaryListEl.insertAdjacentHTML('beforeend', renderElements(data.hits));
@@ -87,11 +85,15 @@ function onError() {
 }
 
 function manyMatches(e) {
-  Notify.info(`Hooray! We found ${e} images.`);
+  Notify.success(`Hooray! We found ${e} images.`);
 }
 
 function nonSearch() {
-  Notify.info(`Enter some data`);
+  Notify.warning(`Enter some data`);
+}
+
+function endSearch() {
+  Notify.info(`We're sorry, but you've reached the end of search results.`);
 }
 
 function scrollWindow() {
