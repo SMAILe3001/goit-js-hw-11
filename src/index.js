@@ -15,6 +15,8 @@ const lightbox = new SimpleLightbox('.gallery a', {
   scrollZoom: false,
 });
 
+let scrollStart = 1;
+
 searchFormEl.addEventListener('submit', submitImages);
 btnLoadMore.addEventListener('click', handleLoadModeBtnClick);
 
@@ -48,6 +50,11 @@ async function submitImages(e) {
     gallaryListEl.innerHTML = renderElements(data.hits);
     lightbox.refresh();
 
+    if (scrollStart) {
+      endlessScroll();
+      scrollStart = 0;
+    }
+
     if (data.totalHits > unsplashAPI.count) {
       btnLoadMore.classList.remove('is-hidden');
       return;
@@ -72,7 +79,7 @@ async function handleLoadModeBtnClick() {
     gallaryListEl.insertAdjacentHTML('beforeend', renderElements(data.hits));
     lightbox.refresh();
     btnLoadMore.disabled = false;
-    scrollWindow();
+    // scrollWindow();
   } catch (err) {
     console.log(err);
   }
@@ -89,20 +96,34 @@ function manyMatches(e) {
 }
 
 function nonSearch() {
-  Notify.warning(`Enter some data`);
+  Notify.warning('Enter some data');
 }
 
 function endSearch() {
   Notify.info(`We're sorry, but you've reached the end of search results.`);
 }
 
-function scrollWindow() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
+// ПРИ ВИКОРИСТАННІ БЕСКІНЕЧНОГО СКРОЛЛУ ФУНКЦІЯ НЕ ПОТРІБНА
 
-  window.scrollBy({
-    top: cardHeight * 2,
-    behavior: 'smooth',
-  });
+// function scrollWindow() {
+//   const { height: cardHeight } = document
+//     .querySelector('.gallery')
+//     .firstElementChild.getBoundingClientRect();
+
+//   window.scrollBy({
+//     top: cardHeight * 2,
+//     behavior: 'smooth',
+//   });
+// }
+
+// БЕСКОНЕЧНИЙ СКРОЛЛ
+
+function endlessScroll() {
+  const options = {
+    rootMargin: '150px',
+  };
+
+  const observer = new IntersectionObserver(handleLoadModeBtnClick, options);
+
+  observer.observe(btnLoadMore);
 }

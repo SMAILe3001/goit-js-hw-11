@@ -6,7 +6,7 @@ export class UnsplashAPI {
 
   query = null;
   page = 1;
-  count = 40;
+  count = 12;
 
   baseSearchParams = {
     per_page: this.count,
